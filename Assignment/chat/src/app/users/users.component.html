@@ -1,0 +1,122 @@
+<div class="page-container d-flex">
+    <app-account-menu></app-account-menu>
+    <div class="users-container flex-grow-1 p-3">
+        <!-- Display error message if available -->
+        <div [hidden]="!showErrorMessage" class="alert alert-danger mt-3">
+            {{ showErrorMessage }}
+        </div>
+        <!-- Display success message if available -->
+        <div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+            {{ showSuccessMessage }}
+        </div>
+
+        <!-- Reported Users Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Reported Users</h4>
+            </div>
+            <div class="card-body">
+                <ul *ngIf="reportedUsers.length > 0" class="list-group">
+                    <!-- Loop through each reported user -->
+                    <li *ngFor="let reported of reportedUsers" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            User ID: {{ reported.user.id }} - Username: {{ reported.user.username }} - Reason: {{ reported.reason }}
+                        </span>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-secondary" (click)="removeReportedUser(reported.user.id)">Ignore Report</button>
+                            <button *ngIf="reported.user.id !== currentUser.id" class="btn btn-danger" (click)="deleteReportedUser(reported.user)">Delete User</button>
+                            <button *ngIf="reported.user.id !== currentUser.id" class="btn btn-warning" (click)="banReportedUser(reported.user)">Ban User</button>
+                        </div>
+                    </li>
+                </ul>
+                <p *ngIf="reportedUsers.length === 0" class="text-muted">No reported users found.</p>
+            </div>
+        </div>
+
+        <!-- Super Admins Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Super Admins</h4>
+            </div>
+            <div class="card-body">
+                <ul *ngIf="getSuperAdmins().length > 0" class="list-group">
+                    <!-- Loop through each super admin user -->
+                    <li *ngFor="let user of getSuperAdmins()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ user.username }} - {{ user.firstName }} {{ user.surname }} ({{ user.email }})</span>
+                        <div class="btn-group" role="group" *ngIf="user.id !== currentUser.id">
+                            <button class="btn btn-secondary" (click)="setGroupAdmin(user)">Downgrade - Group Admin</button>
+                            <button class="btn btn-secondary" (click)="setChatUser(user)">Downgrade - Chat User</button>
+                            <button class="btn btn-warning" (click)="deactivateUser(user)">Deactivate User</button>
+                            <button class="btn btn-danger" (click)="deleteUser(user)">Delete User</button>
+                        </div>
+                    </li>
+                </ul>
+                <p *ngIf="getSuperAdmins().length === 0" class="text-muted">No super admins found.</p>
+            </div>
+        </div>
+
+        <!-- Group Admins Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Group Admins</h4>
+            </div>
+            <div class="card-body">
+                <ul *ngIf="getGroupAdmins().length > 0" class="list-group">
+                    <!-- Loop through each group admin user -->
+                    <li *ngFor="let user of getGroupAdmins()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ user.username }} - {{ user.firstName }} {{ user.surname }} ({{ user.email }})</span>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary" (click)="setSuperAdmin(user)">Upgrade - Super Admin</button>
+                            <button class="btn btn-secondary" (click)="setChatUser(user)">Downgrade - Chat User</button>
+                            <button class="btn btn-warning" (click)="deactivateUser(user)">Deactivate User</button>
+                            <button class="btn btn-danger" (click)="deleteUser(user)">Delete User</button>
+                        </div>
+                    </li>
+                </ul>
+                <p *ngIf="getGroupAdmins().length === 0" class="text-muted">No group admins found.</p>
+            </div>
+        </div>
+
+        <!-- Chat Users Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Chat Users</h4>
+            </div>
+            <div class="card-body">
+                <ul *ngIf="getChatUsers().length > 0" class="list-group">
+                    <!-- Loop through each chat user -->
+                    <li *ngFor="let user of getChatUsers()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ user.username }} - {{ user.firstName }} {{ user.surname }} ({{ user.email }})</span>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-primary" (click)="setSuperAdmin(user)">Upgrade - Super Admin</button>
+                            <button class="btn btn-secondary" (click)="setGroupAdmin(user)">Upgrade - Group Admin</button>
+                            <button class="btn btn-warning" (click)="deactivateUser(user)">Deactivate User</button>
+                            <button class="btn btn-danger" (click)="deleteUser(user)">Delete User</button>
+                        </div>
+                    </li>
+                </ul>
+                <p *ngIf="getChatUsers().length === 0" class="text-muted">No chat users found.</p>
+            </div>
+        </div>
+
+        <!-- Banned Users Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Banned Users</h4>
+            </div>
+            <div class="card-body">
+                <ul *ngIf="getInactiveUsers().length > 0" class="list-group">
+                    <!-- Loop through each banned user -->
+                    <li *ngFor="let user of getInactiveUsers()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ user.username }} - {{ user.firstName }} {{ user.surname }} ({{ user.email }})</span>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-success" (click)="reactivateUser(user)">Reactivate User</button>
+                            <button class="btn btn-danger" (click)="deleteUser(user)">Delete User</button>
+                        </div>
+                    </li>
+                </ul>
+                <p *ngIf="getInactiveUsers().length === 0" class="text-muted">No inactive users found.</p>
+            </div>
+        </div>
+    </div>
+</div>

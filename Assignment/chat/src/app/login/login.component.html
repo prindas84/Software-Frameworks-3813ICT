@@ -1,0 +1,39 @@
+<div class="container-fluid bg-light">
+    <!-- Centre the card in the page -->
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5 shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Display the title for the login card -->
+                    <h3 class="card-title text-center mb-4">Login</h3>
+                    <form>
+                        <!-- Username input field with label -->
+                        <div class="form-group mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" placeholder="Enter username" required 
+                                [(ngModel)]="username" name="username"/>
+                        </div>
+                        <!-- Password input field with label -->
+                        <div class="form-group mb-4">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter your password" required 
+                                [(ngModel)]="password" name="password"/>
+                        </div>
+                        <!-- Login button to submit the form -->
+                        <button type="submit" class="btn btn-secondary btn-block" (click)="onSubmit()">
+                            Login
+                        </button>
+                    </form>
+                    <!-- Display error message if there's a login error -->
+                    <div [hidden]="!showErrorMessage" class="alert alert-danger mt-3">
+                        {{ showErrorMessage }}
+                    </div>
+                    <!-- Display success message if login is successful -->
+                    <div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+                        {{ showSuccessMessage }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

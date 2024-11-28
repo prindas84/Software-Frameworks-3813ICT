@@ -1,0 +1,18 @@
+.view-group-container {
+    min-height: 100vh;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+button.accordion-button.collapsed {
+    background: #ffe38e;
+}
+
+.group-admins {
+    margin-bottom: 30px;
+}
+
+.group-info {
+    margin-bottom: 30px;
+}

@@ -1,0 +1,10 @@
+.users-container {
+    min-height: 100vh;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+li.list-group-item {
+    min-height: 70px !important;
+}

@@ -1,0 +1,28 @@
+.account-container {
+    padding: 20px;
+}
+
+.logout-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.submit-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.profile-form label {
+    padding: 0px 0px 5px 2px;
+}
+
+.profile-form input {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.account-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}

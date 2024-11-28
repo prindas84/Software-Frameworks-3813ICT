@@ -1,0 +1,161 @@
+<div class="page-container d-flex">
+    <app-account-menu></app-account-menu>
+    <div class="view-group-container flex-grow-1 p-3">
+        <div *ngIf="channel && group">
+            <!-- Channel Details Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Video Chat: {{ channel.channelName }}</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Display error message if available -->
+                    <div [hidden]="!showErrorMessage" class="alert alert-danger mt-3">
+                        {{ showErrorMessage }}
+                    </div>
+                    <div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+                        {{ showSuccessMessage }}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between chat-button-return">
+                        <button *ngIf="isChannelCreator()" class="btn btn-primary"
+                            (click)="goBackToGroup()">Return to Group Page</button>
+                        <button *ngIf="!isChannelCreator()" class="btn btn-warning"
+                            (click)="leaveGroup(group.id, channel.id)">Leave Group</button>
+                    </div>
+
+                    <div class="accordion mb-4" id="accordionChannelMembers">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingChannelMembers">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChannelMembers" aria-expanded="false" aria-controls="collapseChannelMembers">
+                                    Channel Members
+                                </button>
+                            </h2>
+                            <div id="collapseChannelMembers" class="accordion-collapse collapse" aria-labelledby="headingChannelMembers" data-bs-parent="#accordionChannelMembers">
+                                <div class="accordion-body">
+                                    <!-- Channel Admins List -->
+                                    <div *ngIf="channel.admins.length > 0">
+                                        <p><strong>Channel Admins:</strong></p>
+                                        <ul class="list-group mb-3">
+                                            <li *ngFor="let admin of channel.admins" class="list-group-item">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>{{ admin.username }} - {{ admin.firstName }} {{ admin.surname }} ({{ admin.email }})</span>
+                                                    <div class="btn-group" role="group">
+                                                        <button *ngIf="admin.id !== currentUser.id" class="btn btn-warning" (click)="toggleReportInput(admin.id)">Report User</button>
+                                                    </div>
+                                                </div>
+                                                <!-- Report Input for Admins (Appears Below User Info) -->
+                                                <div *ngIf="showReportInput[admin.id]" class="mt-2">
+                                                    <input type="text" [(ngModel)]="reportUserReason" placeholder="Reason for report" class="form-control mb-2">
+                                                    <div class="d-flex gap-2">
+                                                        <button class="btn btn-primary" (click)="reportUser(admin.id)">Submit Report</button>
+                                                        <button class="btn btn-secondary" (click)="cancelReport(admin.id)">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                    
+                                    <!-- Channel Members List -->
+                                    <div *ngIf="channel.members.length > 0">
+                                        <p><strong>Channel Members:</strong></p>
+                                        <ul class="list-group mb-3">
+                                            <li *ngFor="let member of channel.members" class="list-group-item">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span>{{ member.username }} - {{ member.firstName }} {{ member.surname }} ({{ member.email }})</span>
+                                                    <div class="btn-group" role="group">
+                                                        <button *ngIf="member.id !== currentUser.id" class="btn btn-warning" (click)="toggleReportInput(member.id)">Report User</button>
+                                                    </div>
+                                                </div>
+                                                <!-- Report Input for Members (Appears Below User Info) -->
+                                                <div *ngIf="showReportInput[member.id]" class="mt-2">
+                                                    <input type="text" [(ngModel)]="reportUserReason" placeholder="Reason for report" class="form-control mb-2">
+                                                    <div class="d-flex gap-2">
+                                                        <button class="btn btn-primary" (click)="reportUser(member.id)">Submit Report</button>
+                                                        <button class="btn btn-secondary" (click)="cancelReport(member.id)">Cancel</button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>   
+                    
+                    <div class="chat-box">
+                        <!-- Chat History -->
+                        <div class="messages">
+                            <div *ngIf="messages.length > 0">
+                                <p *ngFor="let message of messages">
+                                    <img *ngIf="message.avatar" [src]="getAvatarUrl(message.avatar)" alt="Avatar" class="rounded-circle" width="40" height="40" style="margin-right: 5px;">
+                                    <img *ngIf="!message.avatar" [src]="defaultIcon" alt="Default Avatar" class="rounded-circle" width="40" height="40" style="margin-right: 5px;">
+                                    <!-- Display message text if messageType is 'message' -->
+                                    <ng-container *ngIf="message.messageType === 'message'">
+                                        <strong>{{ message.userId === currentUser.id ? 'You' : message.userName }}:</strong> {{ message.message }}
+                                    </ng-container>
+                                    <ng-container *ngIf="message.messageType === 'image'">
+                                        <strong>{{ message.userId === currentUser.id ? 'You' : message.userName }}:</strong>
+                                        <a [href]="getImageUrl(message.message)" target="_blank">
+                                            <img [src]="getImageUrl(message.message)" alt="Chat Image" style="margin-left: 5px; margin-right: 5px; max-height: 20vh;">
+                                        </a>   
+                                    </ng-container>
+                                </p>
+                            </div>
+                        </div>
+                    
+                        <!-- Chat Submission Form -->
+                        <form class="d-flex mt-3 message-form" (submit)="onSend('message')">
+                            <input type="text" class="form-control me-2" placeholder="Type your message..." aria-label="Message" style="width: 85%;" [(ngModel)]="messageContent" name="messageContent" />
+                            <button type="submit" class="btn btn-primary" style="width: 15%;">Send Message</button>
+                        </form>
+
+                        <!-- Image Upload Form -->
+                        <form class="d-flex mt-3 image-upload-form" (submit)="onImageUpload($event)">
+                            <input type="file" accept="image/*" id="chatImageUpload" class="form-control me-2" aria-label="Upload Image" style="width: 85%;" (change)="onFileSelected($event)" />
+                            <button type="submit" class="btn btn-secondary" style="width: 15%;">Send Image</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="video-chat-section mt-4">
+                <h5>Video Chat</h5>
+                <div class="video-chat-buttons mt-3">
+                    <button class="btn btn-success" style="margin-right: 5px;" (click)="startCall()">Start Call</button>
+                    <button class="btn btn-warning" style="margin-right: 5px;" (click)="muteAudio()">Mute</button>
+                    <button class="btn btn-info" style="margin-right: 5px;" (click)="toggleCamera()">Camera</button>
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
+                    <video id="local-video" autoplay playsinline muted class="video-element" style="border-radius: 10px; width: 80%;"></video>
+                </div>
+                <div class="video-grid">
+                    <div *ngFor="let remoteStream of remoteStreams; let i = index" class="remote-video-container">
+                        <video #remoteVideo autoplay playsinline class="video-element" style="border: 1px solid #0000002d; border-radius: 10px;"></video>
+                        <div class="remote-user-info d-flex align-items-center">
+                            <div style="margin-right: 5px;">{{ remoteStream.userName }}</div>
+                        </div>
+                        <button class="btn btn-warning" style="margin-top: 5px;" (click)="toggleRemoteMute(i)">
+                            {{ remoteStream.muted ? 'Unmute' : 'Mute' }} Remote
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+
+
+            <!-- Incoming Call Notification -->
+            <div *ngIf="incomingCall" class="incoming-call-alert">
+                <p>{{ incomingCallerName }} is calling...</p>
+                <button class="btn btn-success" (click)="acceptCall()">Accept</button>
+                <button class="btn btn-danger" (click)="declineCall()">Decline</button>
+            </div>
+
+            <!-- Error Message if Channel or Group is Missing -->
+            <div *ngIf="!channel || !group">
+                <p class="text-danger">ERROR: Unable to load channel details...</p>
+            </div>
+        </div>
+    </div>
+</div>

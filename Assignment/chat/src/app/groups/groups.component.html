@@ -1,0 +1,95 @@
+<div class="page-container d-flex">
+    <app-account-menu></app-account-menu> <!-- Displays the account menu on the left -->
+    <div class="groups-container flex-grow-1 p-3">
+        <!-- Display error message if available -->
+        <div [hidden]="!showErrorMessage" class="alert alert-danger mt-3" [innerHTML]="showErrorMessage"></div>
+        <div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+            {{ showSuccessMessage }}
+        </div>
+
+        <!-- Create Group Section for Super Admins and Group Admins -->
+        <div *ngIf="currentUser?.permission === 'super-admin' || currentUser?.permission === 'group-admin'" class="accordion my-3" id="accordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingCreateGroup">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreateGroup" aria-expanded="false" aria-controls="collapseCreateGroup">
+                        Create Group <!-- Button to expand/collapse the group creation form -->
+                    </button>
+                </h2>
+                <div id="collapseCreateGroup" class="accordion-collapse collapse" aria-labelledby="headingCreateGroup" data-bs-parent="#accordion">
+                    <div class="accordion-body">
+                        <input type="text" [(ngModel)]="newGroupName" placeholder="Group Name" class="form-control mb-2"> <!-- Input field for group name -->
+                        <button (click)="createGroup()" class="btn btn-primary">Create Group</button> <!-- Button to create a new group -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Groups Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>My Groups</h4> <!-- Header for My Groups section -->
+            </div>
+            <div class="card-body">
+                <div *ngIf="getMyGroups().length > 0" class="list-group">
+                    <!-- Display each group the user is part of -->
+                    <div *ngFor="let group of getMyGroups()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span *ngIf="!isBanned(group)">
+                            Group Name: {{ group.groupName }} - Created by {{ group.creator?.username }} <!-- Display group name and creator -->
+                        </span>
+                        <div *ngIf="!isBanned(group)" class="btn-group" role="group">
+                            <button class="btn btn-primary" (click)="viewGroup(group.id)">View Group</button> <!-- View group button -->
+                            <button *ngIf="group.creator?.username !== currentUser?.username" class="btn btn-secondary" (click)="leaveGroup(group)">Leave Group</button> <!-- Leave group button if not the creator -->
+                            <button *ngIf="group.creator?.username === currentUser?.username || currentUser?.permission === 'super-admin'" class="btn btn-danger" (click)="deleteGroup(group)">Delete Group</button> <!-- Delete group button for creator or super-admin -->
+                        </div>
+                    </div>
+                </div>
+                <p *ngIf="getMyGroups().length === 0" class="text-muted">No groups found.</p> <!-- Display if no groups are found -->
+            </div>
+        </div>
+
+        <!-- Awaiting Registration Section -->
+        <div *ngIf="currentUser?.permission !== 'super-admin'" class="card mb-4">
+            <div class="card-header">
+                <h4>Awaiting Registration</h4> <!-- Header for awaiting registration section -->
+            </div>
+            <div class="card-body">
+                <div *ngIf="getRegisteredGroups().length > 0" class="list-group">
+                    <!-- Display each group the user has registered for but not yet joined -->
+                    <div *ngFor="let group of getRegisteredGroups()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span *ngIf="!isBanned(group)">
+                            Group Name: {{ group.groupName }} - Created by {{ group.creator?.username }} <!-- Display group name and creator -->
+                        </span>
+                        <div *ngIf="!isBanned(group)">
+                            <button class="btn btn-warning" (click)="deregisterFromGroup(group)">Deregister</button> <!-- Deregister button for groups awaiting registration -->
+                        </div>
+                    </div>
+                </div>
+                <p *ngIf="getRegisteredGroups().length === 0" class="text-muted">No groups found.</p> <!-- Display if no awaiting registration groups are found -->
+            </div>
+        </div>
+
+        <!-- All Other Groups Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>All Other Groups</h4> <!-- Header for all other groups section -->
+            </div>
+            <div class="card-body">
+                <div *ngIf="getAllGroups().length > 0" class="list-group">
+                    <!-- Display each group the user is not a member of -->
+                    <div *ngFor="let group of getAllGroups()" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span *ngIf="!isBanned(group)">
+                            Group Name: {{ group.groupName }} - Created by {{ group.creator?.username }} <!-- Display group name and creator -->
+                        </span>
+                        <div *ngIf="!isBanned(group)" class="btn-group" role="group">
+                            <button *ngIf="currentUser?.permission === 'super-admin'" class="btn btn-primary" (click)="addGroupAdmin(group)">Join Group</button> <!-- Super-admin button to join group as admin -->
+                            <button *ngIf="currentUser?.permission === 'super-admin'" class="btn btn-danger" (click)="deleteGroup(group)">Delete Group</button> <!-- Super-admin button to delete group -->
+                            <button *ngIf="currentUser?.permission !== 'super-admin'" class="btn btn-secondary" (click)="registerForGroup(group)">Register</button> <!-- Regular user button to register for group -->
+                        </div>
+                    </div>
+                </div>
+                <p *ngIf="getAllGroups().length === 0" class="text-muted">No groups found.</p> <!-- Display if no other groups are found -->
+            </div>
+        </div>
+
+    </div>
+</div>

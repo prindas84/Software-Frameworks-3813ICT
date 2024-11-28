@@ -1,0 +1,115 @@
+<div class="page-container d-flex vh-100">
+    <!-- Account menu component for user navigation -->
+    <app-account-menu></app-account-menu>
+    <div class="account-container flex-grow-1">
+
+        <!-- Display user avatar and welcome message -->
+        <div class="d-flex align-items-start">
+            <img *ngIf="avatarUrl" [src]="avatarUrl" alt="User Avatar" class="rounded-circle me-3" width="60" height="60">
+            <h1 class="mb-0" style="padding-top: 5px;">Welcome, {{ user.firstName }} {{ user.surname }}</h1>
+        </div>
+
+        <!-- Logout and Delete Account buttons -->
+        <div class="logout-container">
+            <button (click)="onLogout()" class="btn btn-warning" style="margin-right: 10px;">Logout</button>
+            <button (click)="deleteAccount()" class="btn btn-danger">Delete Account</button>
+        </div>
+
+        <!-- Upload Avatar section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Upload Avatar</h4>
+            </div>
+            <div class="card-body">
+                <!-- Form to upload a new avatar -->
+                <form (ngSubmit)="onUploadAvatar()">
+                    <div class="form-group mb-3">
+                        <label for="avatarUpload">Choose an Avatar</label>
+                        <input type="file" accept="image/*" id="avatarUpload" class="form-control"
+                            (change)="onFileSelected($event)">
+                    </div>
+                    <!-- Submit button for uploading avatar -->
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Upload Avatar</button>
+                    </div>
+                </form>
+                <div>
+                    <!-- Display error and success messages for avatar upload -->
+                    <div [hidden]="!showErrorMessageUpload" class="alert alert-danger mt-3"
+                        [innerHTML]="showErrorMessageUpload"></div>
+                    <div [hidden]="!showSuccessMessageUpload" class="alert alert-success mt-3">
+                        {{ showSuccessMessageUpload }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <!-- Form to edit profile details -->
+                <form class="profile-form" (ngSubmit)="onSave()">
+                    <!-- Username input -->
+                    <div class="form-group mb-3">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="form-control" [(ngModel)]="user.username"
+                            name="username" required>
+                    </div>
+                    <!-- Password input -->
+                    <div class="form-group mb-3">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" [(ngModel)]="user.password"
+                            name="password" required>
+                    </div>
+                    <!-- Email input -->
+                    <div class="form-group mb-3">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" [(ngModel)]="user.email" name="email"
+                            required>
+                    </div>
+                    <!-- First Name input -->
+                    <div class="form-group mb-3">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" class="form-control" [(ngModel)]="user.firstName"
+                            name="firstName" required>
+                    </div>
+                    <!-- Surname input -->
+                    <div class="form-group mb-3">
+                        <label for="surname">Surname</label>
+                        <input type="text" id="surname" class="form-control" [(ngModel)]="user.surname" name="surname"
+                            required>
+                    </div>
+
+                    <!-- Hidden fields to save user data -->
+                    <input type="hidden" id="id" [(ngModel)]="user.id" name="id" required readonly>
+                    <input type="hidden" id="avatar" [(ngModel)]="user.avatar" name="avatar" required>
+                    <input type="hidden" id="permission" [(ngModel)]="user.permission" name="permission" readonly>
+
+                    <!-- Hidden field for account active status -->
+                    <div class="form-group" style="display: none;">
+                        <label for="active">Account Active</label>
+                        <select id="active" class="form-control" [(ngModel)]="user.active" name="active">
+                            <option [ngValue]="true">Active</option>
+                            <option [ngValue]="false">Banned</option>
+                        </select>
+                    </div>
+
+                    <!-- Error and success messages for profile update -->
+                    <div [hidden]="!showErrorMessage" class="alert alert-danger mt-3" [innerHTML]="showErrorMessage">
+                    </div>
+                    <div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+                        {{ showSuccessMessage }}
+                    </div>
+
+                    <!-- Submit button to save profile changes -->
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

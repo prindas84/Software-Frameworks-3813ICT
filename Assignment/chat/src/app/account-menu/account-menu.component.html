@@ -1,0 +1,12 @@
+<div class="menu-container bg-light h-100">
+    <nav class="flex-column p-3 account-menu">
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item" *ngIf="isSuperAdmin">
+                <a class="nav-link" routerLink="/users">Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" routerLink="/groups">Groups</a>
+            </li>
+        </ul>
+    </nav>
+</div>

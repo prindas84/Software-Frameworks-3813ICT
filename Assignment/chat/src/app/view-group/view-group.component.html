@@ -1,0 +1,167 @@
+<div class="page-container d-flex">
+    <app-account-menu></app-account-menu>
+    <div class="view-group-container flex-grow-1 p-3">
+        <div *ngIf="group">
+            <!-- Group Details Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Group Details</h4>
+                </div>
+                <div class="card-body">
+                    <div class="group-info">
+                        <!-- Group Information -->
+                        <p><strong>Group Name:</strong> {{ group.groupName }}</p>
+                        <p><strong>Group Creator:</strong> {{ group.creator?.username }} - {{ group.creator?.firstName }} {{ group.creator?.surname }} ({{ group.creator?.email }})</p>
+                    </div>
+                    
+                    <!-- Awaiting Approval Accordion -->
+                    <div *ngIf="isGroupAdmin() && group.interested?.length > 0" class="accordion mb-4" id="accordionAwaitingApproval">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingAwaitingApproval">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAwaitingApproval" aria-expanded="true" aria-controls="collapseAwaitingApproval">
+                                    Awaiting Approval
+                                </button>
+                            </h2>
+                            <div id="collapseAwaitingApproval" class="accordion-collapse collapse show" aria-labelledby="headingAwaitingApproval" data-bs-parent="#accordionAwaitingApproval">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        <li *ngFor="let interested of group.interested" class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ interested.username }} - {{ interested.firstName }} {{ interested.surname }} ({{ interested.email }})</span>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-success" (click)="approveRegistration(group, interested)">Approve</button>
+                                                <button class="btn btn-danger" (click)="rejectRegistration(group, interested)">Reject</button>
+                                                <button *ngIf="isGroupAdmin() && interested.username !== currentUser.username" class="btn btn-warning" (click)="banUser(group, interested)">Ban</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group Admins -->
+                    <div class="accordion mb-4" id="accordionGroupAdmins">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingGroupAdmins">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGroupAdmins" aria-expanded="false" aria-controls="collapseGroupAdmins">
+                                    Group Admins
+                                </button>
+                            </h2>
+                            <div id="collapseGroupAdmins" class="accordion-collapse collapse" aria-labelledby="headingGroupAdmins" data-bs-parent="#accordionGroupAdmins">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        <li *ngFor="let admin of group.admins" class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ admin.username }} - {{ admin.firstName }} {{ admin.surname }} ({{ admin.email }})</span>
+                                            <div class="btn-group" role="group">
+                                                <button *ngIf="isGroupAdmin()" class="btn btn-secondary" (click)="removeAdmin(group, admin)">Remove Admin</button>
+                                                <button *ngIf="isGroupAdmin() && admin.username !== currentUser.username" class="btn btn-warning" (click)="removeUser(group, admin)">Remove User</button>
+                                                <button *ngIf="isGroupAdmin() && admin.username !== currentUser.username" class="btn btn-danger" (click)="banUser(group, admin)">Ban User</button>
+                                                <button *ngIf="admin.username === currentUser.username" class="btn btn-success" (click)="leaveGroup(group)">Leave Group</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>                                           
+
+                    <!-- Group Members Accordion -->
+                    <div *ngIf="group.members?.length > 0" class="accordion mb-4" id="accordionGroupMembers">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingGroupMembers">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGroupMembers" aria-expanded="false" aria-controls="collapseGroupMembers">
+                                    Group Members
+                                </button>
+                            </h2>
+                            <div id="collapseGroupMembers" class="accordion-collapse collapse" aria-labelledby="headingGroupMembers" data-bs-parent="#accordionGroupMembers">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        <li *ngFor="let member of group.members" class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ member.username }} - {{ member.firstName }} {{ member.surname }} ({{ member.email }})</span>
+                                            <div class="btn-group" role="group">
+                                                <button *ngIf="isGroupAdmin()" class="btn btn-secondary" (click)="addGroupAdmin(group, member)">Make Admin</button>
+                                                <button *ngIf="isGroupAdmin() && member.username !== currentUser.username" class="btn btn-danger" (click)="removeUser(group, member)">Remove</button>
+                                                <button *ngIf="isGroupAdmin() && member.username !== currentUser.username" class="btn btn-warning" (click)="banUser(group, member)">Ban</button>
+                                                <button *ngIf="member.username === currentUser.username" class="btn btn-secondary" (click)="leaveGroup(group)">Leave Group</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Banned Users Accordion -->
+                    <div *ngIf="isGroupAdmin() && group.banned?.length > 0" class="accordion mb-4" id="accordionBannedUsers">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingBannedUsers">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBannedUsers" aria-expanded="false" aria-controls="collapseBannedUsers">
+                                    Banned Users
+                                </button>
+                            </h2>
+                            <div id="collapseBannedUsers" class="accordion-collapse collapse" aria-labelledby="headingBannedUsers" data-bs-parent="#accordionBannedUsers">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        <li *ngFor="let banned of group.banned" class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ banned.username }} - {{ banned.firstName }} {{ banned.surname }} ({{ banned.email }})</span>
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-primary" (click)="approveRegistration(group, banned)">Restore Membership</button>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Group Channels Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Group Channels</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Display error message if available -->
+                    <div [hidden]="!showErrorMessage" class="alert alert-danger mt-3" [innerHTML]="showErrorMessage"></div>
+                    <div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+                        {{ showSuccessMessage }}
+                    </div>
+                    <!-- Create Channel Accordion -->
+                    <div *ngIf="isGroupAdmin()" class="accordion mb-3" id="accordionChannel">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingCreateChannel">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCreateChannel" aria-expanded="false" aria-controls="collapseCreateChannel">
+                                    Create Channel
+                                </button>
+                            </h2>
+                            <div id="collapseCreateChannel" class="accordion-collapse collapse" aria-labelledby="headingCreateChannel" data-bs-parent="#accordionChannel">
+                                <div class="accordion-body">
+                                    <input type="text" [(ngModel)]="newChannelName" placeholder="Channel Name" class="form-control mb-2">
+                                    <button (click)="createChannel()" class="btn btn-primary">Create Channel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                    <!-- List of Group Channels -->
+                    <div *ngIf="group.channels.length > 0" class="list-group">
+                        <div *ngFor="let channel of group.channels" class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ channel.channelName }}</span>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-success" (click)="startVideoChat(group.id, channel.id)">Video Chat</button>
+                                <button *ngIf="isGroupAdmin()" class="btn btn-danger" (click)="deleteChannel(channel)">Delete Channel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p *ngIf="group.channels.length === 0" class="text-muted" style="margin-left: 2px;">No channels found.</p>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="!group">
+            <p>ERROR: Unable to load group details...</p>
+        </div>
+    </div>
+</div>

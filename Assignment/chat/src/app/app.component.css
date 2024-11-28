@@ -1,0 +1,59 @@
+.navbar-nav {
+    display: flex;            
+    flex-direction: row;      
+    padding-left: 0;          
+    margin: 0;
+    list-style: none;
+    margin-left: auto;
+}
+
+.navbar-homepage {
+    background-color: #45454554; 
+}
+
+.navbar-homepage a.nav-link {
+    color: #000000 !important;
+}
+
+.navbar-default {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #6c757d;
+}
+
+.navbar-default a.nav-link {
+    color: #ffffff !important;
+}
+
+.navbar-nav .nav-item {
+    flex: none;
+}
+
+.navbar-nav .nav-link {
+    display: block;           
+    padding: 10px 15px;       
+    text-align: left;
+}
+
+.homepage-background {
+    background-image: url('/assets/images/homepage.jpg');
+    background-size: cover;           
+    background-repeat: no-repeat;     
+    background-attachment: fixed;     
+    background-position: center;      
+    min-height: 100vh;                
+}
+
+.card.mt-5.shadow-sm {
+    background: none;
+    margin-top: 35px !important;
+    border: 2px solid black;
+}
+
+.justify-content-center {
+    justify-content: right !important;
+}
+
+.container {
+    
+}

@@ -1,0 +1,64 @@
+<div [ngClass]="{'homepage-background': isHomepage}"> <!-- Conditionally apply homepage background style -->
+	<nav class="navbar" [ngClass]="{'navbar-homepage': isHomepage, 'navbar-default': !isHomepage}"> <!-- Conditionally set navbar style based on homepage status -->
+		<div class="container-fluid">
+			<ul class="nav navbar-nav">
+				<li class="active"><a class="nav-link" routerLink="/">Home</a></li> <!-- Home link -->
+				<li *ngIf="!isLoggedIn"><a class="nav-link" routerLink="/login">Login</a></li> <!-- Login link shown if user is not logged in -->
+				<li *ngIf="isLoggedIn"><a class="nav-link" routerLink="/account">Account</a></li> <!-- Account link shown if user is logged in -->
+				<li *ngIf="isLoggedIn"><a class="nav-link" href="#" (click)="onLogout($event)">Logout</a></li> <!-- Logout link shown if user is logged in -->
+			</ul>
+		</div>
+	</nav>
+	<router-outlet></router-outlet> <!-- Outlet for rendering routed components -->
+	<div class="container">
+		<!-- Homepage specific content -->
+		<div *ngIf="isHomepage" class="row justify-content-center"> <!-- Display register form only on the homepage -->
+			<div class="col-md-6 col-lg-4">
+				<div class="card mt-5 shadow-sm">
+					<div class="card-body p-4">
+						<h3 class="card-title text-center mb-4">Register Account</h3>
+						<form>
+							<div class="form-group mb-3">
+								<label for="username" class="form-label">Username</label> <!-- Username input field -->
+								<input type="text" class="form-control" id="username" placeholder="Enter username" required 
+									[(ngModel)]="user.username" name="username"/>
+							</div>
+
+							<div class="form-group mb-3">
+								<label for="password" class="form-label">Password</label> <!-- Password input field -->
+								<input type="password" class="form-control" id="password" placeholder="Enter password" required 
+									[(ngModel)]="user.password" name="password"/>
+							</div>
+
+							<div class="form-group mb-3">
+								<label for="email" class="form-label">Email</label> <!-- Email input field -->
+								<input type="email" class="form-control" id="email" placeholder="Enter email" required 
+									[(ngModel)]="user.email" name="email"/>
+							</div>
+
+							<div class="form-group mb-3">
+								<label for="firstName" class="form-label">First Name</label> <!-- First Name input field -->
+								<input type="text" class="form-control" id="firstName" placeholder="Enter first name" required 
+									[(ngModel)]="user.firstName" name="firstName"/>
+							</div>
+
+							<div class="form-group mb-3">
+								<label for="surname" class="form-label">Surname</label> <!-- Surname input field -->
+								<input type="text" class="form-control" id="surname" placeholder="Enter surname" required 
+									[(ngModel)]="user.surname" name="surname"/>
+							</div>
+
+							<button type="submit" class="btn btn-secondary btn-block" (click)="onSubmit()"> <!-- Submit button to register user -->
+								Register
+							</button>
+						</form>
+						<div [hidden]="!showErrorMessage" class="alert alert-danger mt-3" [innerHTML]="showErrorMessage"></div> <!-- Display error message if present -->
+						<div [hidden]="!showSuccessMessage" class="alert alert-success mt-3">
+							{{ showSuccessMessage }} <!-- Display success message if present -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

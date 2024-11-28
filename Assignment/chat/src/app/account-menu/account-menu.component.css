@@ -1,0 +1,17 @@
+a.nav-link {
+    color: #494949;
+}
+
+.account-menu {
+    padding: 25px !important;
+}
+
+.page-container {
+    display: flex;
+    height: 100vh;
+}
+
+.menu-container {
+    width: 250px;
+}
+
